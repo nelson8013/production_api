@@ -40,7 +40,7 @@ public class EmployeeService implements EmployeeServiceInterface {
       return employee.get();
     }
     throw new EmployeeNotFoundException("There's no Employee with an id of " + id);
-	}
+	 }
 
     @Override
     public Employee createEmployee(Employee employee) {
@@ -48,7 +48,7 @@ public class EmployeeService implements EmployeeServiceInterface {
       return employeeRepository.save(employee);
     }
     throw new EmployeeAlreadyExistsException("An Employee with that email already exists");
-  }
+   }
 
     @Override
     public Employee updateEmployee(Employee employee) {
@@ -92,6 +92,16 @@ public class EmployeeService implements EmployeeServiceInterface {
       Sort sort = Sort.by(Sort.Direction.DESC, "id");
 			return employeeRepository.findByEmailContaining(email,sort);
 		}
+
+    @Override
+    public List<Employee> getEmployeeByFirstNameOrLocation(String first_name, String location) {
+      return employeeRepository.getEmployeeByFirstNameOrLocation(first_name, location);
+    }
+
+    @Override
+    public Integer deleteByEmployeeFirstName(String first_name) {
+      return employeeRepository.deleteEmployeesByFirstname(first_name);
+    }
 
   
  

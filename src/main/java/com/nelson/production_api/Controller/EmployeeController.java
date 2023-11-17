@@ -1,6 +1,7 @@
 package com.nelson.production_api.Controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -15,7 +16,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.nelson.production_api.Exceptions.EmployeeAlreadyExistsException;
+import com.nelson.production_api.Model.Department;
 import com.nelson.production_api.Model.Employee;
+import com.nelson.production_api.Repositories.DepartmentRepository;
+import com.nelson.production_api.Repositories.EmployeeRepository;
+import com.nelson.production_api.Requests.EmployeeRequest;
 import com.nelson.production_api.Services.EmployeeService;
 
 @RestController
@@ -24,6 +31,12 @@ public class EmployeeController {
    
    @Autowired
    private EmployeeService employeeService;
+
+   @Autowired
+   private DepartmentRepository departmentRepository;
+
+   @Autowired
+   private EmployeeRepository employeeRepository;
 
    @GetMapping("/employees")
    public ResponseEntity<List<Employee>> employees(){
@@ -37,19 +50,39 @@ public class EmployeeController {
     return new ResponseEntity<>(employees, HttpStatus.OK);
    }
 
-   @GetMapping("/employee/{id}")
-   public Employee employee(@PathVariable Long id){
+   @GetMapping("/employee")
+   public Employee employee(@RequestParam Long id){
     return employeeService.employee(id);
    }
 
    @PostMapping("/employees")
-   public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody Employee employee){
-        Employee createdEmployee = employeeService.createEmployee(employee);
-        return new ResponseEntity<>(createdEmployee, HttpStatus.CREATED);
+   public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody EmployeeRequest request){
+
+        Department existingDepartment = departmentRepository.findByName(request.getDepartment());
+
+        Department department;
+
+        if (existingDepartment != null) {
+            department = existingDepartment;
+        }else{
+            department = new Department();
+            department.setName(request.getDepartment());
+            department = departmentRepository.save(department);
+        }
+
+        Employee employee = new Employee(request);
+        employee.setDepartment(department);
+
+        try{
+            employee = employeeService.createEmployee(employee);
+            return new ResponseEntity<>(employee, HttpStatus.CREATED);
+        }catch(EmployeeAlreadyExistsException e){
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
    }
 
-   @PutMapping("/employee/{id}")
-   public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee){
+   @PutMapping("/employee")
+   public ResponseEntity<Employee> updateEmployee(@RequestParam Long id, @RequestBody Employee employee){
         employee.setId(id);
         Employee updatedEmployee = employeeService.updateEmployee(employee);
         return new ResponseEntity<>(updatedEmployee, HttpStatus.OK);
@@ -75,7 +108,7 @@ public class EmployeeController {
 
 
     @GetMapping("/employees/filterByFirstNameAndLocation")
-    public ResponseEntity< List<Employee>> employeesByLastName(@RequestParam String first_name, @RequestParam String location){
+    public ResponseEntity< List<Employee>> employeesByFirstNameAndLocation(@RequestParam String first_name, @RequestParam String location){
         List<Employee> employeeNames = employeeService.getEmployeeByFirstNameAndLocation(first_name, location);
         return new ResponseEntity<>(employeeNames, HttpStatus.OK);
     }
@@ -99,9 +132,17 @@ public class EmployeeController {
     }
    
    
+    @GetMapping("/employees/{first_name}/{location}")
+    public ResponseEntity< List<Employee>> employeesByFirstNameOrLocation(@PathVariable String first_name, @PathVariable String location){
+        List<Employee> employeeNames = employeeService.getEmployeeByFirstNameOrLocation(first_name, location);
+        return new ResponseEntity<>(employeeNames, HttpStatus.OK);
+    }
    
-   
-
-
+    @DeleteMapping("/employees/delete/{first_name}")
+    public ResponseEntity<String> deleteEmployeeByFirstName(@PathVariable String first_name){
+        Integer deletedEmployee = employeeService.deleteByEmployeeFirstName(first_name);
+        return new ResponseEntity<>(deletedEmployee  + " record(s) deleted", HttpStatus.OK);
+    }
+        
  
 }

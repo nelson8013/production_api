@@ -21,5 +21,9 @@ public interface EmployeeServiceInterface {
  List<Employee> getEmployeeFirstNameByKeyword(String first_name);
  List<Employee> getEmployeeLastNameByKeyword(String last_name);
  List<Employee> getEmployeeEmailByKeyword(String email);
+
+  List<Employee> getEmployeeByFirstNameOrLocation(String first_name, String location);
+  Integer deleteByEmployeeFirstName(String first_name);
+
 }
  
