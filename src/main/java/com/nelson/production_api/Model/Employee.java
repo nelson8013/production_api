@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,16 +43,13 @@ public class Employee {
 
  private Long age = 0L;
 
- @NotBlank( message = "Location cannot be null")
- private String location;
-
  @Email( message = "Please enter a valid email address. Are you mad?")
  @NotBlank( message = "Email cannot be null")
  @Column( unique = true)
  private String email;
 
  @JoinColumn(name = "department_id")
- @OneToOne
+ @OneToOne(fetch = FetchType.EAGER)
  private Department department;
 
  @CreationTimestamp
@@ -62,12 +60,12 @@ public class Employee {
  @Column(name = "updated_at")
  private Date updatedAt;
 
+ public Employee(){}
 
  public Employee(EmployeeRequest request){
    this.firstName = request.getFirstName();
    this.lastName  = request.getLastName();
    this.age       = request.getAge();
-   this.location  = request.getLocation();
    this.email     = request.getEmail();
  }
  

@@ -3,6 +3,7 @@ package com.nelson.production_api.Services;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,15 +24,15 @@ public class EmployeeService implements EmployeeServiceInterface {
   
     @Override
     public List<Employee> employees() {
-      return employeeRepository.findAll();
+      return employeeRepository.findAllWithDepartment();
     }
 
     @Override
-    public List<Employee> employees(int pageNumber, int pageSize) {
+    public Page<Employee> employees(int pageNumber, int pageSize) {
       Sort sort = Sort.by(Sort.Direction.DESC, "id");
       Pageable pages = PageRequest.of(pageNumber, pageSize, sort);
-      return employeeRepository.findAll(pages).getContent();
-  }
+      return employeeRepository.findAll(pages);
+    }
 
     @Override
     public Employee employee(Long id) {
@@ -70,10 +71,10 @@ public class EmployeeService implements EmployeeServiceInterface {
     return employeeRepository.findByLastName(last_name);
   }
 
-    @Override
+   /*  @Override
     public List<Employee> getEmployeeByFirstNameAndLocation(String first_name, String location) {
-    return employeeRepository.findByFirstNameAndLocation(first_name,location);
-  }
+     return employeeRepository.findByFirstNameAndLocation(first_name,location);
+    } */
 
 		@Override
 		public List<Employee> getEmployeeFirstNameByKeyword(String first_name) {
@@ -93,15 +94,27 @@ public class EmployeeService implements EmployeeServiceInterface {
 			return employeeRepository.findByEmailContaining(email,sort);
 		}
 
-    @Override
+    /* @Override
     public List<Employee> getEmployeeByFirstNameOrLocation(String first_name, String location) {
       return employeeRepository.getEmployeeByFirstNameOrLocation(first_name, location);
-    }
+    } */
 
     @Override
     public Integer deleteByEmployeeFirstName(String first_name) {
       return employeeRepository.deleteEmployeesByFirstname(first_name);
     }
+
+    @Override
+    public List<Employee> getEmployeesByDepartment(String name) {
+      return employeeRepository.findByDepartmentName(name);
+    }
+
+    @Override
+    public List<Employee> getEmployeesByDepartmentTwo(String name) {
+      return employeeRepository.getEmployeesByDepartment(name);
+    }
+
+    
 
   
  

@@ -1,5 +1,7 @@
 package com.nelson.production_api.Requests;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +12,7 @@ public class EmployeeRequest {
   private String firstName;
   private String lastName;
   private Long   age;
-  private String location;
+  private List<String> location;
   private String email;
   private String department;
 }
